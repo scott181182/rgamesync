@@ -1,0 +1,8 @@
+games = "All"
+
+[stores]
+test1 = "tests/data/storage/test1"
+
+[remotes.test]
+name = "local"
+path = "tests/data/storage/remote"

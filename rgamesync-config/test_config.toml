@@ -1,0 +1,7 @@
+remote = "/test/dir"
+
+[stores]
+Steam = "/home/sfasone/.var/Steam/steamapps/common"
+
+[games]
+List = ["Dark Souls II", "Dark Souls III"]
