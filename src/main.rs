@@ -6,7 +6,7 @@ use rgamesync_rclone::RCloneError;
 use thiserror::Error;
 
 use crate::commands::config::run_config;
-use crate::commands::sync::{run_sync, SyncArgs};
+use crate::commands::sync::{SyncArgs, run_sync};
 use crate::commands::version::run_version;
 use crate::context::GameSyncContext;
 
@@ -27,11 +27,11 @@ struct Args {
     config_path: Option<PathBuf>,
 
     /// Makes all calls to `rclone` interactive. Useful if you want to be careful about what you're doing.
-    #[arg(short, long, default_value_t=false)]
+    #[arg(short, long, default_value_t = false)]
     interactive: bool,
 
     /// Makes all calls to `rclone` a dry run. Useful for testing things out before actually overwriting saves.
-    #[arg(short, long, default_value_t=false)]
+    #[arg(short, long, default_value_t = false)]
     dry_run: bool,
 
     #[command(subcommand)]
@@ -42,7 +42,7 @@ struct Args {
 enum Command {
     Version,
     Config,
-    Sync(SyncArgs)
+    Sync(SyncArgs),
 }
 
 
@@ -70,19 +70,22 @@ fn run_program(args: Args) -> anyhow::Result<()> {
     let config = if let Some(config_path) = args.config_path {
         GameSyncConfig::parse_config_file(config_path)?
     } else {
-        GameSyncConfig::get_configuration()
-            .map_err(|err| {
-                if let GetConfigurationError::NoConfigFile(_path) = err {
-                    ProgramError::NoConfiguration
-                } else {
-                    err.into()
-                }
-            })?
+        GameSyncConfig::get_configuration().map_err(|err| {
+            if let GetConfigurationError::NoConfigFile(_path) = err {
+                ProgramError::NoConfiguration
+            } else {
+                err.into()
+            }
+        })?
     };
 
     let mut opts: Vec<String> = vec![];
-    if args.interactive { opts.push("-i".to_owned()); }
-    if args.dry_run { opts.push("--dry-run".to_owned()); }
+    if args.interactive {
+        opts.push("-i".to_owned());
+    }
+    if args.dry_run {
+        opts.push("--dry-run".to_owned());
+    }
     let ctx = GameSyncContext::new(config, opts);
 
     match args.command {

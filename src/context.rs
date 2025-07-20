@@ -5,10 +5,9 @@ use rgamesync_rclone::RCloneError;
 
 
 
-
 pub struct GameSyncContext {
     pub config: GameSyncConfig,
-    opts: Vec<String>
+    opts: Vec<String>,
 }
 
 impl GameSyncContext {
@@ -17,7 +16,9 @@ impl GameSyncContext {
     }
 
     pub fn run_rclone(&self, args: &[&str]) -> Result<(), RCloneError> {
-        let args = self.opts.iter()
+        let args = self
+            .opts
+            .iter()
             .map(OsString::from)
             .chain(args.into_iter().map(OsString::from))
             .collect::<Vec<_>>();
