@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs::{exists, read_to_string, write};
 use std::path::{Path, PathBuf};
 
+use glob::Pattern;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -12,34 +13,42 @@ use crate::directories::{ConfigDirectoryError, get_config_path};
 //////////////////////////////////
 //   Configuration Structures   //
 //////////////////////////////////
-#[derive(Debug, Serialize, Deserialize)]
-pub enum GameList {
-    All,
-    List(Vec<String>),
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GameConfig {
+    /// The name of the game, especially the folder to find it in.
+    pub name: String,
+    /// The directory to find game saves.
+    pub save_dir: PathBuf,
+    /// A glob pattern to find save files by. If omitted, will sync all files in the `save_dir`.
+    #[serde(default, with = "crate::serde::save_glob")]
+    pub save_glob: Option<Pattern>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RemoteConfig {
     /// The name of the `rclone` remote that should be sync'd.
-    name: String,
+    pub name: String,
     /// The path within the remote to sync to.
     /// Defaults to `/rgamesync`.
-    path: Option<String>,
+    pub path: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameSyncConfig {
     /// A map from store name to the path of that store's game directory.
-    /// 
+    ///
     /// ```toml
     /// [stores]
     /// steam = "/home/user/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common"
     /// ```
     pub stores: HashMap<String, PathBuf>,
-    /// What games to sync, or all of them.
-    pub games: GameList,
-    /// Configuration for `rclone` remotes.
-    pub remotes: HashMap<String, RemoteConfig>,
+    /// Configuration for games to sync.
+    pub games: Vec<GameConfig>,
+    /// Configuration for `rclone` remote.
+    ///
+    /// TODO: added support for multiple remotes.
+    pub remote: RemoteConfig,
 }
 
 
@@ -74,6 +83,10 @@ pub enum GetConfigurationError {
 }
 
 
+
+////////////////////////
+//   Implementation   //
+////////////////////////
 
 impl GameSyncConfig {
     ///
