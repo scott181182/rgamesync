@@ -30,8 +30,8 @@ pub struct RemoteConfig {
     /// The name of the `rclone` remote that should be sync'd.
     pub name: String,
     /// The path within the remote to sync to.
-    /// Defaults to `/rgamesync`.
-    pub path: Option<String>,
+    /// Defaults to `rgamesync`.
+    pub path: Option<PathBuf>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
