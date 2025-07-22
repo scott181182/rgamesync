@@ -30,7 +30,7 @@ pub fn run_rclone<ArgIter: IntoIterator<Item = Arg>, Arg: AsRef<OsStr>>(args: Ar
             }
         })?;
 
-    let status = child.wait().map_err(|err| RCloneError::UnexpectedClose(err))?;
+    let status = child.wait().map_err(RCloneError::UnexpectedClose)?;
 
     if !status.success() {
         Err(RCloneError::UnexpectedStatusCode(status))
